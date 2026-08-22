@@ -1,0 +1,11 @@
+# 开发过程产物（不上传）
+.screenshots/
+.cdp-profile2/
+
+# Node
+node_modules/
+*.log
+
+# 系统/编辑器
+Thumbs.db
+.DS_Store
