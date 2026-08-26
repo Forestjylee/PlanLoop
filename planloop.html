@@ -282,6 +282,37 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:.75}
 .tour-bubble .arr{position:absolute;width:0;height:0;border:10px solid transparent;pointer-events:none}
 .tour-bubble .arr.t{top:-20px;border-bottom:10px solid var(--card)}
 .tour-bubble .arr.b{bottom:-20px;border-top:10px solid var(--card)}
+/* ---- 理念开场 philo (CR-009) ---- */
+.philo-veil{position:fixed;inset:0;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:63;display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeUp .3s cubic-bezier(.22,.8,.35,1)}
+.philo-card{position:relative;width:min(460px,100%);background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow-hover);padding:30px 32px 24px;text-align:center}
+.philo-card .plogo{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:18px}
+.philo-card .plogo .dot{width:14px;height:14px;border-radius:5px;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 2px 8px var(--ring)}
+.philo-card .plogo span{font-weight:800;font-size:17px;letter-spacing:.2px}
+.philo-card .plead{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--accent);margin-bottom:8px}
+.philo-card .ptitle{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+.philo-card .pcopy{color:var(--muted);font-size:14.5px;line-height:1.7;min-height:84px}
+.philo-card .ptag{display:inline-block;margin:14px 0 4px;padding:6px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:650}
+.philo-card .pfoot{display:flex;align-items:center;gap:10px;margin-top:20px}
+.philo-card .pfoot .dots{flex:1;display:flex;justify-content:center;gap:6px}
+.philo-card .pfoot .dots i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:.2s}
+.philo-card .pfoot .dots i.on{background:var(--accent);transform:scale(1.18)}
+.philo-card .skip{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted);font-size:12.5px;cursor:pointer;transition:.15s}
+.philo-card .skip:hover{color:var(--danger)}
+/* ---- review markdown preview (CR-010) ---- */
+.reviewtextwrap{display:flex;flex-direction:column;margin-top:15px}
+.reviewtextwrap .mdbar{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.reviewtextwrap .mdbar .hint{font-size:11.5px;color:var(--muted);flex:1}
+.reviewtextwrap .mdbtn{padding:5px 13px;border-radius:9px;font-size:12px;font-weight:650;border:1px solid var(--line);background:var(--card2);color:var(--muted);transition:.15s}
+.reviewtextwrap .mdbtn:hover{color:var(--ink);border-color:var(--muted)}
+.reviewtextwrap .mdbtn.on{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.reviewtextwrap .mdpanel{display:none;width:100%;min-height:110px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--card2)}
+.reviewtextwrap .mdpanel.show{display:block}
+.reviewtextwrap .mdpanel h1,.reviewtextwrap .mdpanel h2,.reviewtextwrap .mdpanel h3{font-weight:750;line-height:1.4;margin:.2em 0}
+.reviewtextwrap .mdpanel h1{font-size:19px}.reviewtextwrap .mdpanel h2{font-size:16.5px}.reviewtextwrap .mdpanel h3{font-size:14.5px}
+.reviewtextwrap .mdpanel ul,.reviewtextwrap .mdpanel ol{margin:.4em 0 .4em 1.3em}
+.reviewtextwrap .mdpanel li{margin:.15em 0}
+.reviewtextwrap .mdpanel code{background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:12.5px;font-family:ui-monospace,Consolas,monospace}
+.reviewtextwrap .mdpanel p{margin:.3em 0}
 
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media(max-width:720px){ .summarygrid{grid-template-columns:1fr} .weekgrid{grid-template-columns:repeat(2,1fr)} .nav{order:9;width:100%;justify-content:space-between;margin-left:0} }
@@ -359,11 +390,17 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:.75}
         <div style="display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:wrap">
           <span style="font-size:12px;color:var(--muted)">今天心情：</span>
           <div class="moodrow" id="moodRow" style="margin-top:0">
-            <button type="button" data-mood="1">😞</button><button type="button" data-mood="2">😕</button><button type="button" data-mood="3">😐</button>
-            <button type="button" data-mood="4">🙂</button><button type="button" data-mood="5">😄</button>
+            <button type="button" data-mood="1">😞</button><button type="button" data-mood="2">😐</button><button type="button" data-mood="3">🙂</button>
           </div>
         </div>
-        <textarea class="reviewtextarea" id="reviewText" placeholder="今天的复盘：哪里安排得不好？什么没做成？下次怎么调整？"></textarea>
+        <div class="reviewtextwrap">
+          <div class="mdbar">
+            <span class="hint">支持 Markdown：# 标题、**加粗**、- 列表</span>
+            <button type="button" class="mdbtn" id="revPreviewToggle">预览</button>
+          </div>
+          <textarea class="reviewtextarea" id="reviewText" placeholder="今天的复盘：哪里安排得不好？什么没做成？下次怎么调整？"></textarea>
+          <div class="mdpanel" id="reviewPreview"></div>
+        </div>
         <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px">
           <button class="btn primary" id="revSend">把勾选的放进待办池</button>
         </div>
@@ -437,6 +474,50 @@ function todayStr() { return dstr(new Date()); }
 function hmToMin(s) { if (!s) return 0; var p = String(s).split(':'); return (+p[0]) * 60 + (+p[1] || 0); }
 function minToHM(n) { n = Math.max(0, Math.round(n)); var h = Math.floor(n / 60), m = n % 60; return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0'); }
 function clampStart(startMin, durMin) { if (durMin <= 0) return startMin; return Math.max(0, Math.min(startMin, 1440 - durMin)); }
+
+function normMood(v) {
+  v = +v || 0;
+  if (v <= 0) return 0;
+  if (v <= 2) return 1;
+  if (v === 3) return 2;
+  return 3;
+}
+
+/* Markdown 子集 → HTML。所有用户文本先转义再套标签，杜绝 XSS。 */
+function mdEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function mdInline(s) {
+  var out = '', re = /(`[^`]+`)|(\*\*[^*\n]+\*\*)/g, last = 0, m;
+  s = String(s == null ? '' : s);
+  while ((m = re.exec(s)) !== null) {
+    out += mdEsc(s.slice(last, m.index));
+    if (m[1]) out += '<code>' + mdEsc(m[1].slice(1, -1)) + '</code>';
+    else out += '<strong>' + mdEsc(m[2].slice(2, -2)) + '</strong>';
+    last = re.lastIndex;
+  }
+  out += mdEsc(s.slice(last));
+  return out;
+}
+function mdToHtml(src) {
+  if (!src) return '';
+  var lines = String(src).split(/\n/);
+  var i = 0, out = [], ul = [], ol = [], plain = [];
+  function flushPlain() { if (plain.length) { out.push('<p>' + plain.join('<br>') + '</p>'); plain = []; } }
+  function flushUl() { if (ul.length) { out.push('<ul><li>' + ul.join('</li><li>') + '</li></ul>'); ul = []; } }
+  function flushOl() { if (ol.length) { out.push('<ol><li>' + ol.join('</li><li>') + '</li></ol>'); ol = []; } }
+  while (i < lines.length) {
+    var t = lines[i].trim();
+    if (!t) { flushPlain(); flushUl(); flushOl(); i++; continue; }
+    var h = /^(#{1,3})\s+(.+)/.exec(t);
+    if (h) { flushPlain(); flushUl(); flushOl(); var hh = h[1].length; out.push('<h' + hh + '>' + mdInline(h[2]) + '</h' + hh + '>'); i++; continue; }
+    if (/^(-|\*)\s+/.test(t)) { flushPlain(); flushOl(); ul.push(mdInline(t.replace(/^(-|\*)\s+/, ''))); i++; continue; }
+    if (/^\d+\.\s+/.test(t)) { flushPlain(); flushUl(); ol.push(mdInline(t.replace(/^\d+\.\s+/, ''))); i++; continue; }
+    flushUl(); flushOl();
+    plain.push(mdInline(lines[i]));
+    i++;
+  }
+  flushPlain(); flushUl(); flushOl();
+  return out.join('\n');
+}
 
 const DOW_LABEL = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
@@ -535,7 +616,7 @@ function createDomain(state) {
   return {
     getMaterialized: getMaterialized, ensureToday: ensureToday, writeBlock: writeBlock, projectBlocks: projectBlocks,
     addToBacklog: addToBacklog, assignFromBacklog: assignFromBacklog, exportState: exportState, importState: importState,
-    todayStr: todayStr, addDays: addDays, hmToMin: hmToMin, minToHM: minToHM, clampStart: clampStart
+    todayStr: todayStr, addDays: addDays, hmToMin: hmToMin, minToHM: minToHM, clampStart: clampStart, normMood: normMood, mdToHtml: mdToHtml
   };
 }
 
@@ -574,6 +655,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var state = (stored && stored.v === 2) ? stored : { v: 2, templates: [], days: {}, backlog: [], settings: { theme: 'light', palette: 'salt' } };
   if (!state.settings) state.settings = { theme: 'light', palette: 'salt' };
   if (!state.settings.palette) state.settings.palette = 'salt';
+  if (!state.settings.onboarded) state.settings.onboarded = false;
+  if (!state.settings.philoIntro) state.settings.philoIntro = false;
 
   function persist() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ } }
 
@@ -958,15 +1041,35 @@ document.addEventListener('DOMContentLoaded', function () {
       row.querySelector('[data-revcheck]').onclick = function () { this.classList.toggle('on'); };
       list.appendChild(row);
     });
-    var mood = (m.review && m.review.mood) || 0;
+    var mood = domain.normMood((m.review && m.review.mood) || 0);
     Array.prototype.forEach.call(document.querySelectorAll('#moodRow button'), function (btn) { btn.classList.toggle('on', +btn.getAttribute('data-mood') === mood); });
     document.getElementById('reviewText').value = (m.review && m.review.text) || '';
+    if (typeof reviewPrevOn !== 'undefined' && reviewPrevOn) { reviewPrevOn = false; applyReviewPrevMode(); }
+    syncReviewPreview();
   }
   document.getElementById('reviewText').addEventListener('input', function (e) {
     var m = domain.getMaterialized(reviewDate); if (!m) return;
     var r = m.review || (m.review = { text: '', mood: 0 });
     r.text = e.target.value; persist();
+    syncReviewPreview();
   });
+  var reviewPrevOn = false;
+  var reviewTextEl = document.getElementById('reviewText');
+  var reviewPrevEl = document.getElementById('reviewPreview');
+  var reviewPrevBtn = document.getElementById('revPreviewToggle');
+  function syncReviewPreview() {
+    var m = domain.getMaterialized(reviewDate);
+    var text = (m && m.review && m.review.text) || '';
+    reviewPrevEl.innerHTML = domain.mdToHtml(text);
+  }
+  function applyReviewPrevMode() {
+    reviewTextEl.style.display = reviewPrevOn ? 'none' : '';
+    reviewPrevEl.classList.toggle('show', reviewPrevOn);
+    reviewPrevBtn.classList.toggle('on', reviewPrevOn);
+    reviewPrevBtn.textContent = reviewPrevOn ? '编辑' : '预览';
+    if (reviewPrevOn) syncReviewPreview();
+  }
+  reviewPrevBtn.addEventListener('click', function () { reviewPrevOn = !reviewPrevOn; applyReviewPrevMode(); });
   document.getElementById('moodRow').addEventListener('click', function (e) {
     var b = e.target.closest('[data-mood]'); if (!b) return;
     var m = domain.getMaterialized(reviewDate); if (!m) return;
@@ -1366,9 +1469,62 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   document.getElementById('onboardBtn').onclick = function () { startTour(); };
 
+  /* ---- philo intro (CR-009) ---- */
+  var PHILO_CARDS = [
+    { lead: 'PLANLOOP 的设计哲学', t: '把决定提前', c: '"今天干嘛"是最耗意志力的决定，别等早晨现想——用固定时间块结构提前排好，把意志力留给执行本身。', tag: '决策前移' },
+    { lead: 'PLANLOOP 的设计哲学', t: '结构护住黄金时段', c: '10 点默认就是深度工作，结构性挡住刷手机；休息就是休息，不必为自己高效之外的时段自责。', tag: '保护黄金时段' },
+    { lead: 'PLANLOOP 的设计哲学', t: '只影响未来', c: '改结构只影响还没定形的日子，已经记录的过去不会被推翻——放心试，错了明天再调。', tag: '宽容的迭代' }
+  ];
+  var philoIdx = -1;
+  var philoVeil = null, philoCard = null;
+  function philoMarkSeen() {
+    if (!state.settings.philoIntro) { state.settings.philoIntro = true; persist(); }
+  }
+  function renderPhilo() {
+    var s = PHILO_CARDS[philoIdx];
+    philoCard.innerHTML =
+      '<button type="button" class="skip" data-pskip title="跳过">跳过</button>' +
+      '<div class="plogo"><span class="dot"></span>PlanLoop</div>' +
+      '<div class="plead">' + esc(s.lead) + '</div>' +
+      '<div class="ptitle">' + esc(s.t) + '</div>' +
+      '<div class="pcopy">' + esc(s.c) + '</div>' +
+      '<div class="ptag">' + esc(s.tag) + '</div>' +
+      '<div class="pfoot">' +
+        '<div class="dots">' + PHILO_CARDS.map(function (_, i) { return '<i class="' + (i === philoIdx ? 'on' : '') + '"></i>'; }).join('') + '</div>' +
+        '<button type="button" class="btn primary" data-pnext>' + (philoIdx === PHILO_CARDS.length - 1 ? '开始使用' : '下一步') + '</button>' +
+      '</div>';
+  }
+  function startPhilo() {
+    if (philoIdx !== -1) return;
+    philoIdx = 0;
+    if (!philoVeil) {
+      philoVeil = document.createElement('div'); philoVeil.className = 'philo-veil';
+      philoCard = document.createElement('div'); philoCard.className = 'philo-card';
+      philoVeil.appendChild(philoCard);
+      document.body.appendChild(philoVeil);
+      philoCard.addEventListener('click', function (e) {
+        if (e.target.closest('[data-pnext]')) {
+          if (philoIdx === PHILO_CARDS.length - 1) { finishPhilo(true); return; }
+          philoIdx++; renderPhilo();
+        } else if (e.target.closest('[data-pskip]')) { finishPhilo(false); }
+      });
+    }
+    philoVeil.style.display = 'flex';
+    renderPhilo();
+  }
+  function finishPhilo(continueTour) {
+    if (philoIdx === -1) return;
+    philoMarkSeen();
+    philoIdx = -1;
+    philoVeil.style.display = 'none';
+    philoCard.innerHTML = '';
+    if (continueTour && !state.settings.onboarded) startTour();
+  }
+
   /* ---- initial render ---- */
   switchView('day');
-  if (!state.settings.onboarded) startTour();
+  if (!state.settings.philoIntro && !state.settings.onboarded) startPhilo();
+  else if (!state.settings.onboarded) startTour();
 });
 </script>
 </body>

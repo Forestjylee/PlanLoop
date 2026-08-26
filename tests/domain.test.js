@@ -14,7 +14,7 @@ if (!coreMatch) { console.error('FAIL: CORE sentinels not found'); process.exit(
 const core = coreMatch[1];
 
 const api = new Function(
-  core + '\n return { createDomain, tplApplies, repeatLabel, blocksFromTemplates, clampStart, hmToMin, minToHM };'
+  core + '\n return { createDomain, tplApplies, repeatLabel, blocksFromTemplates, clampStart, hmToMin, minToHM, normMood, mdToHtml };'
 )();
 
 let pass = 0, fail = 0;
@@ -231,6 +231,37 @@ console.log('--- 12. clampStart (CR-003) ---');
   check('zero-start allowed', api.clampStart(0, 1440) === 0);
   check('overnight block dur<=0 untouched', api.clampStart(1200, -60) === 1200);
   check('full-day tail boundary exact', api.clampStart(1440, 0) === 1440);
+}());
+
+console.log('--- 13. normMood (CR-010) ---');
+(function () {
+  check('0 stays 0', api.normMood(0) === 0);
+  check('1 (bad) stays 1', api.normMood(1) === 1);
+  check('2 maps to 1', api.normMood(2) === 1);
+  check('3 maps to 2', api.normMood(3) === 2);
+  check('4 maps to 3', api.normMood(4) === 3);
+  check('5 maps to 3', api.normMood(5) === 3);
+}());
+
+console.log('--- 14. mdToHtml (CR-010) ---');
+(function () {
+  var h1 = api.mdToHtml('# 标题');
+  check('h1 heading', h1.indexOf('<h1>标题</h1>') !== -1);
+  var h2 = api.mdToHtml('## 子标题');
+  check('h2 heading', h2.indexOf('<h2>子标题</h2>') !== -1);
+  var ul = api.mdToHtml('- apple\n- banana');
+  check('unordered list', ul.indexOf('<ul>') !== -1 && ul.indexOf('<li>apple</li>') !== -1 && ul.indexOf('<li>banana</li>') !== -1);
+  var ol = api.mdToHtml('1. first\n2. second');
+  check('ordered list', ol.indexOf('<ol>') !== -1 && ol.indexOf('<li>first</li>') !== -1);
+  var b = api.mdToHtml('**加粗**');
+  check('bold inline', b.indexOf('<strong>加粗</strong>') !== -1);
+  var code = api.mdToHtml('`code`');
+  check('inline code', code.indexOf('<code>code</code>') !== -1);
+  var p = api.mdToHtml('普通段落');
+  check('plain paragraph', p.indexOf('<p>普通段落</p>') !== -1);
+  var xss = api.mdToHtml('<script>alert(1)</script>');
+  check('XSS escaped, no raw script tag', xss.indexOf('<script>') === -1 && xss.indexOf('&lt;script&gt;') !== -1);
+  check('empty input -> empty string', api.mdToHtml('') === '');
 }());
 
 console.log('');

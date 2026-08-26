@@ -229,3 +229,62 @@ function exportState() -> string(JSON); importState(json) -> bool; parseImport(j
 
 - `node tests/domain.test.js` 全绿（新增 `clampStart` 用例 + 既有 45 例）。
 - 手动：今日视图呈纵向时间轴、无卡内时间文本；拖动卡片平移时段、高度不变、尾不越界；切走切回保持一致。
+
+---
+
+## 9 CR-009 产品理念开场引导（实现规格）
+
+> 上游：[PRD.md 4.10](PRD.md)。纯 DOM 胶水层 + 样式 + 一个设置标记；`tests/domain.test.js` 保持全绿。
+
+### 9.1 数据模型
+
+- `state.settings.philoIntro`（新增布尔，默认无 = falsy）。首次打开且 `!philoIntro && !onboarded` 时自动播放理念段；看完全部卡片或点「开始使用」即置 `true` 并 `persist()`。
+- `readPhilo()` 兼容：旧存档无此字段（falsy → 首次会播一次理念段，可接受）。
+
+### 9.2 静态资源
+
+- 覆盖层样式 `.philo-veil`（全屏遮罩）、`.philo-card`（居中理念卡）。z-index 与导览层一致（60–62 之间）。顶栏无新增按钮（「？」仍只重播操作导览）。
+
+### 9.3 理念引擎（胶水层，3 卡片顺序固定）
+
+- `PHILO_CARDS = [{ t:'把决定提前', c:'…' }, { t:'结构护住黄金时段', c:'…' }, { t:'只影响未来', c:'…' }]`（文案见 PRD 4.10）。
+- 状态 `philoIdx`（-1=未开）。
+- 每张卡右侧一个「下一步」，最后一张变「开始使用」；卡片底部进度点。
+- 点外 / Esc / 「开始使用」→ `finishPhilo()`：置 `settings.philoIntro = true`、`persist()`、移除遮罩；若 `!state.settings.onboarded` 则紧接 `startTour()`。
+- 触发：DOM 渲染完成后 `if (!state.settings.philoIntro && !state.settings.onboarded) startPhilo()`。
+
+### 9.4 自检
+
+- `node tests/domain.test.js` 全绿（无领域层改动）。
+- 手动：清 localStorage 首次开 → 先理念段再进操作导览；完成后刷新不再弹；老用户（onboarded=true）开新档不含 philo 时只播理念段不播导览。
+
+---
+
+## 10 CR-010 心情 3 档 + 富文本复盘（实现规格）
+
+> 上游：[PRD.md 4.11](PRD.md)。领域层新增可测纯函数 **`mdToHtml(src)`** 与 **`normMood(v)`**；其余为胶水层。
+
+### 10.1 领域层新增（纯、可测）
+
+- `normMood(v)`：把既有 5 档归并到 3 档——`0→0`、`1/2→1`、`3→2`、`4/5→3`。用于读取老存档时归一化展示。
+- `mdToHtml(src)`：把 Markdown 子集转 HTML 字符串。纯函数，内部对所有文本先 `esc()` 再套标签（**防 XSS 是硬要求**）。
+
+**Markdown 子集解析规则**：
+- 先按 `\n` 分块（`block`）。
+- 块级：`# ` / `## ` / `### ` → `<h1/2/3>`；`- `/`* ` 连续块 → `<ul><li>`；`1. ` 连续块 → `<ol><li>`；空块作段分隔。
+- 剩余普通行合并为 `<p>`。
+- 行内：`` `code` `` → `<code>`；`**bold**` → `<strong>`。文本一律先 `esc`。
+- 输出用一个安全子集 sanitize（只允许 `h1-h3/p/ul/ol/li/code/strong`），兜底移除其余标签。
+
+### 10.2 胶水层改动
+
+- **心情**：`#moodRow` 改渲染 3 个按钮（好 🙂 / 中 😐 / 坏 😞），`data-mood="1|2|3"`；保存仍 `mood=1/2/3`。读取展示时先 `normMood(m.review.mood)`。
+- **复盘富文本**：
+  - `#reviewText` 下方新增 `<button id="revPreviewToggle">预览</button>` 与一个隐藏的预览容器 `#reviewPreview`。
+  - 预览态渲染 `mdToHtml(r.text)` 入容器，隐藏 textarea；再点切回编辑（textarea 值保持原状）。
+  - 输入监听不变（直接存 Markdown 源码字符串）。
+
+### 10.3 自检
+
+- `node tests/domain.test.js` 全绿（新增 `mdToHtml`、`normMood` 用例）。
+- 手动：复盘心情 3 档可点选回显；输入 `# 标题` `- 列表` `**加粗**` 后点预览出对应层级；预览不执行任何脚本标签。

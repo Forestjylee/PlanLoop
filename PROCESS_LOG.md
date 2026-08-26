@@ -160,3 +160,23 @@
 - **实现**（`planloop.html`）：CSS 调整 `.palette` 定位与新增 `#timeline.no-anim`、`.ttime`、`.zone{…}` 系列；HTML 把 `#paletteMenu` 移到顶栏外；胶水层 `paletteBtn.onclick` 加计算定位与视口夹持、`document click` 点外判断纳入菜单本身；`renderDay` 增加 zone 渲染与 `ttime` chip；`endDrag` 包 `no-anim`。
 - **校验**：JS 语法 `node --check` 通过；`tests/domain.test.js` **51/0** 全绿（领域层零改动）；CDP 无头 Chrome 实测——`ZONE_DIAG`：zone 标签 ['上午','下午','晚上']、3 块均有 ttime；`MENU_DIAG`：菜单 open=true、top61/bottom115、`z-index:120`，截图确认 5 色完整可见未被遮挡；`Input.dispatchMouseEvent` 真实输入拖拽 `dragging:true`、块随动、结束后 `.no-anim` 已被移除且全程 `EXCEPTIONS[]`（无异常）。截图存 `.screenshots/cr008_day.png`、`cr008_menu.png`、`cr008_afterdrag.png`。
 - **遗留验证**：分区色带与卡片叠加的美感、字号观感，需用户本地浏览器实际体验确认一次。
+
+## 变更请求 CR-009：产品理念开场引导（两段式）
+
+- **2026-08-26** 用户在用户旅程梳理后提出：产品引导不仅要教操作，还要传递产品哲学与设计理念，让用户从"会用"升到"认同"。
+- **grill 收敛**：采纳"两段式"——新增独立理念开场覆盖层（3 张哲学卡：把决定提前 / 结构护住黄金时段 / 只影响未来），播放完再进入既有 5 步操作导览。顶栏「？」仍只重播操作导览。纯胶水层 + `settings.philoIntro` 标记，领域接口零改动。
+- **PRD §4.10**、**SPEC §9** 成文。
+- **实现**（`planloop.html` 胶水层 + 样式）：新增 `.philo-veil/.philo-card` 覆盖层样式；`PHILO_CARDS` 3 步引擎（单卡居中、进度点、下一步/开始使用/跳过）；`finishPhilo(continueTour)` 后按需衔接 `startTour()`；首次启动 `!philoIntro && !onboarded` 先播理念。
+- **校验**：`node tests/domain.test.js` **66/0** 全绿（新增领域函数见 CR-010）；`--dump-dom` 确认 philo-card 与首卡文案渲染；playwright-core 驱动系统 Chrome 实测 13 例全过（首卡→卡2→卡3→开始使用→衔接导览→刷新不重播→持久化）。
+
+## 变更请求 CR-010：心情 3 档 + 富文本复盘（Markdown）
+
+- **2026-08-26** 用户在用户旅程梳理后提出：复盘除了心情"好中坏"，还支持富文本（可选）。采纳 Markdown 语法方案——长复盘有层级但保持纯源码字符串存储，契合单文件/导出干净。
+- **grill 收敛**：
+  - D1（心情）5 档改 3 档（好 🙂=3 / 中 😐=2 / 坏 😞=1），旧存档经 `normMood` 归并（4/5→3、3→2、1/2→1）。
+  - D2（富文本）领域层新增可测纯函数 `mdToHtml(src)`（标题 1–3 / 无序 / 有序 / 加粗 / 行内代码 / 段落），**全部文本先 `mdEsc` 转义再套标签**，杜绝 XSS。复盘输入框下方加「预览/编辑」切换，存 Markdown 源码。
+- **PRD §4.11**、**SPEC §10** 成文。
+- **实现**：领域层新增 `normMood`、`mdToHtml`、`mdInline`、`mdEsc`（纯函数，导出进 `createDomain` 返回）；胶水层心情改 3 按钮、复盘富文本预览容器 `#reviewPreview` + `#revPreviewToggle` 切换；`renderReview` 用 `normMood` 归并老数据。
+- **校验**：`tests/domain.test.js` 新增 normMood 6 例 + mdToHtml 8 例 → **66/0** 全绿；JS 语法通过；playwright-core 实测 12 例全过（3 心情按钮/存源码/预览 h1+ul+strong+code/切回编辑/XSS 不执行脚本）。
+
+## 变更请求 CR-011：场景 2 记录分享（规划中，未实现）
