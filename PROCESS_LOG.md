@@ -180,3 +180,21 @@
 - **校验**：`tests/domain.test.js` 新增 normMood 6 例 + mdToHtml 8 例 → **66/0** 全绿；JS 语法通过；playwright-core 实测 12 例全过（3 心情按钮/存源码/预览 h1+ul+strong+code/切回编辑/XSS 不执行脚本）。
 
 ## 变更请求 CR-011：场景 2 记录分享（规划中，未实现）
+
+## 变更请求 CR-012：Apple 风格全面重估（ui-ux-pro-max 驱动）
+
+- **2026-08-27** 用户要求用 `ui-ux-pro-max` 技能把项目「完全重估」成 Apple 风格。
+- **工具情况**：技能已加载，但其 `--design-system` 生成器依赖的 `design_system.py` 在本机技能包中缺失，自动生成不可用。转而调用技能可用的 `core.py` 检索引擎（product/style/color/typography/ux/icons）获取数据库推荐。
+- **grill 决策（依据技能检索）**：
+  - **产品类型**：Productivity Tool + Calendar & Scheduling App → 推荐 **Flat + Micro-interactions、Minimalism、Soft UI**，Dashboard 用 Drill-Down Analytics，配色「Clear hierarchy + functional colors」。
+  - **风格**：**Bento Box Grid / Apple-style**（off-white `#F5F5F7`、text `#1D1D1F`、18-20px 圆角、soft shadows、hover scale 1.02）；Glassmorphism 用于顶栏/浮层；动效 Tier Subtle/Standard（`transform/opacity` only、150-250ms、`power1/power2.out`）。
+  - **颜色**：回归 Apple 中性系统灰——浅色 `--bg:#f5f5f7`/`--card:#fff`/`--ink:#1d1d1f`，深色 `--bg:#000`/`--card:#1c1c1e`/`--ink:#f5f5f7`；强调 `--accent:#0071e3`（iOS 蓝，浅）/`#0a84ff`（深）；5 套 palette 降为**只覆盖 accent 系**、底恒为中性灰。
+  - **排版**：系统字体栈 Apple 优先（`-apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "PingFang SC"…`），数字 `tabular-nums`。
+  - **交互/无障碍（ux 高优先规则）**：触控目标抬到 **38px**（icon/date/mini/mood 42px）、图标/按钮间距 ≥8px、hover 位移 <2px 或 scale、`--ease:cubic-bezier(.32,.72,.35,1)`（Apple 标准）、尊重 `prefers-reduced-motion`。
+- **实现**（`planloop.html`，纯样式层重写整个 `<style>` 块，**DOM 与 JS 逻辑零改动**）：
+  - 设计令牌重构：`--line-soft`、`--shadow-sm/md→shadow/shadow-lg` 语义化，圆角 `--r-sm/md/lg/xl`，统一 `--ease`。
+  - 视觉刷新：背景去偏蓝回归 `#F5F5F7` 中性灰；卡片改 **白卡浮浅灰、弱描边 + 柔和双层阴影**（不再靠重边框）；iOS 分段控件胶囊化（`.nav`/`.seg` 选中白底 + 微影）；顶栏/浮层/palette/modal 毛玻璃统一 `saturate(180%) blur(20-22px)`；Bento 统计卡（数字 30px、顶部细渐变条取代左侧竖条）；当前时间红线加 `nowPulse` 呼吸；hover 统一 power2 微动效（translateY/scale + shadow-lg）。
+  - 触控与可读性：`.iconbtn 34→38px`、`.datebtn 32→36px`、`.mini/mood/dow` 同步加大；`--muted-2` 新增用于滚动条 thumb 对比；字号与留白微调。
+- **校验**：`tests/domain.test.js` **66/0** 全绿（领域零改动）；JS `node --check` 通过；CDP 无头 Chrome 实测——3 块渲染正常、分区（上午/下午/晚上）完好、切深色、切 amber 配色（`settings.palette` 持久化）、五页签逐页截图、全程 `EXCEPTIONS[]` 无 JS 错误、控制台无网络错误。截图存 `.screenshots/cr009_*`。
+- **产物**：`design-system` 系统设计随本项目内嵌于 `.screenshots/` 外，token 语义记录见本条目；未额外生成设计令牌文件（保持单文件架构）。
+- **遗留验证**：毛玻璃手感、hover/开关动效、深浅主题实际质感建议用户本地浏览器体验确认；分段控件 5 段在窄屏的横向拥挤感可后续评估（CR-012 已保留 `720px` 断点换行布局）。
