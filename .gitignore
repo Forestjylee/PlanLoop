@@ -1,6 +1,8 @@
 # 开发过程产物（不上传）
 .screenshots/
 .cdp-profile2/
+_smoke_tmp/
+_demo_tmp/
 
 # Node
 node_modules/

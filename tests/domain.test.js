@@ -36,9 +36,10 @@ T('candidatesFor 钉优先、同文本去重、含最近', () => {
                   '2026-09-01': { slots: { s1: { text: '写作', completed: false } } } }, // 最近
   };
   const c = Core.candidatesFor(s1, dstrNow, state);
-  eq(c.map(x => x.text), ['晨跑', '写作']);
+  eq(c.slice(0, 2).map(x => x.text), ['晨跑', '写作']);   // 钉/最近靠前、去重
   eq(c[0].kind, 'pin');
   eq(c[1].kind, 'hot');
+  ok(c.length >= 5 && c.slice(2).every(x => x.kind === 'idea'));  // 灵感卡片为兜底新来源
 });
 T('candidatesFor 纳入顺延项（只呈现目标时段与到期日）', () => {
   const dstrNow = '2026-09-03';
@@ -48,7 +49,18 @@ T('candidatesFor 纳入顺延项（只呈现目标时段与到期日）', () => 
     { id: 'c2', text: '未到', toSlot: s1, toDay: '2026-09-05' },     // 未到 → 不出现
     { id: 'c3', text: '别时段', toSlot: 's2', toDay: '2026-09-03' }  // 别的时段
   ], dayFills: {} };
-  eq(Core.candidatesFor(s1, dstrNow, state).map(x => x.text), ['交方案']);
+  const cc = Core.candidatesFor(s1, dstrNow, state);
+  eq(cc[0].text, '交方案'); eq(cc[0].kind, 'carry');
+  ok(cc.every((x, i) => i === 0 || x.kind === 'idea'));  // 只呈现到期的目标时段顺延项 + 灵感兜底
+});
+T('灵感卡片：按自然时段给出、kind=idea、排在真实候选后', () => {
+  const s = Core.defaultSlots(); const m = s.find(x => x.name === '午间');
+  const state = { v: 3, slots: s, pins: { [m.id]: [{ id: 'p', text: '力量训练' }] }, carried: [], dayFills: {} };
+  const c = Core.candidatesFor(m.id, '2026-09-03', state);
+  eq(c[0].text, '力量训练');            // 真实固定钉优先
+  eq(c[0].kind, 'pin');
+  ok(c.slice(1).every(x => x.kind === 'idea'));                   // 灵感非任务、不参与 pin/hot/carry 统计
+  ok(['离开屏幕吃顿饭，不看手机', '下楼晒 30 秒太阳'].every(t => c.some(x => x.text === t)));  // 午间卡齐全
 });
 
 // ---------- 填充与执行 ----------

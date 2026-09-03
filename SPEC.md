@@ -363,3 +363,12 @@ state = {
 6. **迁移 + 导入导出**：v2→v3 迁移、导出/导入 v3、坏 JSON 拒导入。
 7. **胶水层 + 拆除**：今日时段表/候选池/回望/结构/周视图改造；按 §11.5 拆除旧面；导航收敛。
 8. **自检**：`node tests/domain.test.js` 全绿；文案/页面无废弃术语残留。
+
+### 11.7 灵感卡片（CR-016 增量，已完成）
+
+在 §11.6 任务 2「候选池聚合」基础上增补第四来源，**零数据模型改动**：
+
+- `candidatesFor(slotId,dstrNow,data,max)`：在 `pin→carry→hot` 之后追加；`slot=(data.slots||[]).find(s=>s.id===slotId)`，若非空时段再按 `slot.name` 从 `IDEA[name]` 取 ≤3 条，命中 `max`、与已有文本去重、仅当 `out.length<max` 时补入；自定义/未知时段名回退 `IDEA_ANY`。
+- `kind:'idea'` 标识来源；选中走既有 `pickFill` 落为普通项，不新增持久化字段。
+- 渲染：芯片 `cand.idea` 虚线胶囊 + `<i class="idea-tag">灵感</i>`；候选徽标文案「钉 · 顺延 · 最近 · 灵感」。
+- 测试：`tests/domain.test.js` 新增「灵感卡片：按自然时段给出、kind=idea、排在真实候选后」。

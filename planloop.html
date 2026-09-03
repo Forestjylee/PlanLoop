@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
+<html lang="zh-CN" data-theme="light"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>PlanLoop · 轻量人生节奏</title>
@@ -75,6 +74,9 @@
   .cand:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-soft)}
   .cand .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
   .cand.pin .dot{background:var(--blue)}.cand.carry .dot{background:var(--warn)}.cand.hot .dot{background:var(--ink-3)}
+  .cand.idea{border-style:dashed;border-color:var(--line-2);background:var(--card-2);color:var(--ink-3);font-weight:400}
+  .cand.idea .dot{background:transparent;border:1.5px dashed var(--ink-3)}
+  .cand.idea .idea-tag{font-size:10px;line-height:14px;padding:0 4px;border:1px solid var(--line-2);border-radius:5px;color:var(--ink-3)}
   .cand-new{display:inline-flex;align-items:center;gap:4px;padding:6px 8px 6px 14px;border-radius:999px;border:1.5px dashed var(--line-2);font-size:14px;color:var(--ink-3);transition:.15s}
   .cand-new input{width:120px;border:none;outline:none;background:transparent;font-size:14px;color:var(--ink)}
   .cand-link{margin-top:10px;font-size:13px;color:var(--ink-3);text-decoration:underline}
@@ -100,7 +102,7 @@
   .moodstrip{display:flex;gap:8px}
   .moodcell{flex:1;text-align:center;font-size:22px}
   .moodcell .d{display:block;font-size:10px;color:var(--ink-3);margin-top:4px}
-  textarea{width:100%;min-height:90px;border:1px solid var(--line-2);border-radius:var(--r-md);padding:12px 14px;resize:vertical;outline:none;background:var(--card-2);transition:.15s}
+  textarea{width:100%;min-height:90px;border:1px solid var(--line-2);border-radius:var(--r-md);padding:12px 14px;resize:vertical;outline:none;background:var(--card-2);transition:.15s;margin-top:16px}
   textarea:focus{border-color:var(--blue);box-shadow:0 0 0 4px var(--blue-ring)}
 
   .struct-sum{font-size:13px;color:var(--ink-3);margin-bottom:14px;padding:0 2px}
@@ -138,21 +140,34 @@
   .welcome .pt b{color:var(--ink)}
   .welcome .ico{flex:none;width:26px;height:26px;border-radius:8px;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center;font-size:14px;font-weight:700}
 
-  @media (max-width:520px){.nav button{padding:7px 11px;font-size:13px}.statgrid{grid-template-columns:1fr 1fr}.today-head .date{font-size:22px}}
+  .welcome .ghost{margin-top:14px;background:transparent;border:1px solid var(--line-2);color:var(--ink-2);font-size:14px;font-weight:600;padding:10px 18px;border-radius:12px;transition:.15s}
+  .welcome .ghost:hover{color:var(--blue);border-color:var(--blue)}
+
+  .demo-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:50;display:none;align-items:center;gap:12px;background:rgba(30,30,34,.9);color:#fff;padding:10px 14px 10px 16px;border-radius:16px;box-shadow:var(--shadow-lg);max-width:min(92vw,600px);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+  .demo-bar.on{display:flex}
+  .demo-caption{font-size:13px;line-height:1.5;color:#eee}
+  .demo-ctl{display:flex;gap:6px;flex:none}
+  .demo-ctl button{background:rgba(255,255,255,.16);color:#fff;padding:8px 13px;border-radius:10px;font-size:13px;font-weight:600;transition:.15s}
+  .demo-ctl button:hover{background:var(--blue)}
+  .demo-ctl button.lite{background:transparent;color:#bbb}
+  .demo-ctl button.lite:hover{color:#fff;background:rgba(255,255,255,.1)}
+
+  @media (max-width:520px){.nav button{padding:7px 11px;font-size:13px}.statgrid{grid-template-columns:1fr 1fr}.today-head .date{font-size:22px}.demo-bar{flex-direction:column;align-items:stretch;gap:8px}}
   @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
-</head>
+<style id="darkcss">[data-theme="dark"]{--bg:#000;--card:#1C1C1E;--card-2:#2C2C2E;--ink:#F5F5F7;--ink-2:#A1A1A6;--ink-3:#98989B;--line:#2C2C2E;--line-2:#3A3A3C;--blue-soft:rgba(10,132,255,.22);--blue-ring:rgba(10,132,255,.4);--carry-soft:#2A2318;--shadow:none;--shadow-lg:0 10px 30px rgba(0,0,0,.5)}[data-theme=dark] .topbar{background:rgba(0,0,0,.7)}[data-theme=dark] .welcome{background:#1C1C1E}[data-theme=dark] .veil{background:rgba(0,0,0,.5)}</style></head>
 <body>
 
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand"><div class="logo">◈</div><h1>PlanLoop</h1></div>
     <nav class="nav">
-      <button data-view="day" class="on">今日</button>
-      <button data-view="look">回望</button>
-      <button data-view="struct">结构</button>
+      <button data-view="day" class="">今日</button>
+      <button data-view="look" class="on">回望</button>
+      <button data-view="struct" class="">结构</button>
     </nav>
     <div class="top-acts">
+      <button class="iconbtn" id="demoBtn" title="自动演示">▶</button>
       <button class="iconbtn" id="exportBtn" title="导出备份">⤓</button>
       <button class="iconbtn" id="importBtn" title="导入">⤒</button>
       <input type="file" id="importFile" accept=".json,application/json" style="display:none">
@@ -162,17 +177,87 @@
 </header>
 
 <main>
-  <section class="view on" id="view-day">
-    <div class="today-head"><div class="date" id="todayDate">今天</div><div class="sub" id="todaySub"></div></div>
+  <section class="view" id="view-day">
+    <div class="today-head"><div class="date" id="todayDate">周四 · 今天</div><div class="sub" id="todaySub">2026-09-03</div></div>
     <div class="today-progress">
       <div class="cap"><span>今日节奏</span><span id="todayCount">0 / 0</span></div>
       <div class="bar"><i id="todayBar" style="width:0%"></i></div>
     </div>
-    <div class="slotlist" id="slotList"></div>
+    <div class="slotlist" id="slotList">
+      <div class="slotcard" style="border-left:3px solid #007AFF">
+        <div class="slot-top">
+          <div class="slot-color" style="background:#007AFF"></div>
+          <div><div class="slot-name">上午</div><div class="slot-win">06:00-12:00</div></div>
+          <div class="slot-actions">
+            
+            <button class="complete-btn" data-tog="ide8w4s0l" title="完成 / 撤销">✓</button>
+          </div>
+        </div>
+        <div class="slot-content">
+          <div class="slot-fill empt" data-open="ide8w4s0l">＋ 从候选里点选一项（填=选）</div>
+          
+        </div>
+      </div>
+      <div class="slotcard" style="border-left:3px solid #0A84FF">
+        <div class="slot-top">
+          <div class="slot-color" style="background:#0A84FF"></div>
+          <div><div class="slot-name">午间</div><div class="slot-win">12:00-14:00</div></div>
+          <div class="slot-actions">
+            
+            <button class="complete-btn" data-tog="idvovjxkj" title="完成 / 撤销">✓</button>
+          </div>
+        </div>
+        <div class="slot-content">
+          <div class="slot-fill empt" data-open="idvovjxkj">＋ 从候选里点选一项（填=选）</div>
+          
+        </div>
+      </div>
+      <div class="slotcard" style="border-left:3px solid #34C759">
+        <div class="slot-top">
+          <div class="slot-color" style="background:#34C759"></div>
+          <div><div class="slot-name">下午<span class="kind-now">此刻</span></div><div class="slot-win">14:00-18:00</div></div>
+          <div class="slot-actions">
+            
+            <button class="complete-btn" data-tog="idafdn29r" title="完成 / 撤销">✓</button>
+          </div>
+        </div>
+        <div class="slot-content">
+          <div class="slot-fill empt" data-open="idafdn29r">＋ 从候选里点选一项（填=选）</div>
+          
+        </div>
+      </div>
+      <div class="slotcard" style="border-left:3px solid #5E5CE6">
+        <div class="slot-top">
+          <div class="slot-color" style="background:#5E5CE6"></div>
+          <div><div class="slot-name">晚上</div><div class="slot-win">18:00-24:00</div></div>
+          <div class="slot-actions">
+            
+            <button class="complete-btn" data-tog="idh3s59qm" title="完成 / 撤销">✓</button>
+          </div>
+        </div>
+        <div class="slot-content">
+          <div class="slot-fill empt" data-open="idh3s59qm">＋ 从候选里点选一项（填=选）</div>
+          
+        </div>
+      </div>
+      <div class="slotcard" style="border-left:3px solid #FF9F0A">
+        <div class="slot-top">
+          <div class="slot-color" style="background:#FF9F0A"></div>
+          <div><div class="slot-name">午夜</div><div class="slot-win">24:00-06:00</div></div>
+          <div class="slot-actions">
+            
+            <button class="complete-btn" data-tog="idjnb3fpk" title="完成 / 撤销">✓</button>
+          </div>
+        </div>
+        <div class="slot-content">
+          <div class="slot-fill empt" data-open="idjnb3fpk">＋ 从候选里点选一项（填=选）</div>
+          
+        </div>
+      </div></div>
     <p class="foot-note">没做完的，<span class="pace">点「顺延」明天接着走</span>——不记仇，只是让你把节奏握住。</p>
   </section>
 
-  <section class="view" id="view-look">
+  <section class="view on" id="view-look">
     <div class="today-head"><div class="date">回望</div><div class="sub">今天实际怎么过，不必自责</div></div>
     <div class="statgrid">
       <div class="stat hl"><div class="v" id="statStreak">0</div><div class="k">连续保持（天）</div></div>
@@ -186,13 +271,13 @@
         <button class="mood" data-m="2"><span>😐</span><span class="d">中</span></button>
         <button class="mood" data-m="3"><span>🙂</span><span class="d">好</span></button>
       </div>
-      <textarea id="lookText" placeholder="留下一句今天怎么过的（可选）…"></textarea>
+      <textarea id="lookText" placeholder="留下一句今天怎么过的（可选）…" style="position: relative;"></textarea>
     </div>
     <div class="card">
       <h3>本周，你在变好</h3>
-      <div class="weekbars" id="weekBars"></div>
+      <div class="weekbars" id="weekBars"><div class="wbar empty" style="--p:0"><div class="b"></div><div class="d">08-28</div></div><div class="wbar empty" style="--p:0"><div class="b"></div><div class="d">08-29</div></div><div class="wbar empty" style="--p:0"><div class="b"></div><div class="d">08-30</div></div><div class="wbar empty" style="--p:0"><div class="b"></div><div class="d">08-31</div></div><div class="wbar empty" style="--p:0"><div class="b"></div><div class="d">09-01</div></div><div class="wbar empty" style="--p:0"><div class="b"></div><div class="d">09-02</div></div><div class="wbar today empty" style="--p:0"><div class="b"></div><div class="d">09-03</div></div></div>
       <div style="height:16px"></div>
-      <div class="moodstrip" id="moodStrip"></div>
+      <div class="moodstrip" id="moodStrip"><div class="moodcell">·<span class="d">08-28</span></div><div class="moodcell">·<span class="d">08-29</span></div><div class="moodcell">·<span class="d">08-30</span></div><div class="moodcell">·<span class="d">08-31</span></div><div class="moodcell">·<span class="d">09-01</span></div><div class="moodcell">·<span class="d">09-02</span></div><div class="moodcell">·<span class="d">09-03</span></div></div>
     </div>
     <p class="foot-note">计划是倾向，不是承诺。<span class="pace">做不到也够好，接得上才是节奏。</span></p>
   </section>
@@ -200,12 +285,77 @@
   <section class="view" id="view-struct">
     <div class="today-head"><div class="date">结构</div><div class="sub">节律骨架，随时可调，只影响未来</div></div>
     <div class="struct-sum">时段帮你"醒来即知今天大形"。改结构不会改写已经记下的日子。</div>
-    <div id="structList"></div>
+    <div id="structList">
+      <div class="struct-card">
+        <div class="struct-top">
+          <div class="slot-color" style="background:#007AFF"></div>
+          <input data-name="ide8w4s0l" value="上午">
+          <div style="display:flex;gap:4px">
+            <button class="mini" data-move="ide8w4s0l" data-dir="-1" title="上移">↑</button>
+            <button class="mini" data-move="ide8w4s0l" data-dir="1" title="下移">↓</button>
+            <button class="mini del" data-delslot="ide8w4s0l" title="删除">✕</button>
+          </div>
+        </div>
+        <div class="struct-win">钟点窗口<input data-win="ide8w4s0l" value="06:00-12:00" placeholder="可选，如 06:00-12:00"></div>
+        <div class="pins"><div class="lbl">这个时段常做的（固定钉 · 填=选直接出现）</div><span class="add-btn" data-addroot="ide8w4s0l">＋ <input data-addpin="ide8w4s0l" placeholder="钉一个常做的"></span></div>
+      </div>
+      <div class="struct-card">
+        <div class="struct-top">
+          <div class="slot-color" style="background:#0A84FF"></div>
+          <input data-name="idvovjxkj" value="午间">
+          <div style="display:flex;gap:4px">
+            <button class="mini" data-move="idvovjxkj" data-dir="-1" title="上移">↑</button>
+            <button class="mini" data-move="idvovjxkj" data-dir="1" title="下移">↓</button>
+            <button class="mini del" data-delslot="idvovjxkj" title="删除">✕</button>
+          </div>
+        </div>
+        <div class="struct-win">钟点窗口<input data-win="idvovjxkj" value="12:00-14:00" placeholder="可选，如 06:00-12:00"></div>
+        <div class="pins"><div class="lbl">这个时段常做的（固定钉 · 填=选直接出现）</div><span class="add-btn" data-addroot="idvovjxkj">＋ <input data-addpin="idvovjxkj" placeholder="钉一个常做的"></span></div>
+      </div>
+      <div class="struct-card">
+        <div class="struct-top">
+          <div class="slot-color" style="background:#34C759"></div>
+          <input data-name="idafdn29r" value="下午">
+          <div style="display:flex;gap:4px">
+            <button class="mini" data-move="idafdn29r" data-dir="-1" title="上移">↑</button>
+            <button class="mini" data-move="idafdn29r" data-dir="1" title="下移">↓</button>
+            <button class="mini del" data-delslot="idafdn29r" title="删除">✕</button>
+          </div>
+        </div>
+        <div class="struct-win">钟点窗口<input data-win="idafdn29r" value="14:00-18:00" placeholder="可选，如 06:00-12:00"></div>
+        <div class="pins"><div class="lbl">这个时段常做的（固定钉 · 填=选直接出现）</div><span class="add-btn" data-addroot="idafdn29r">＋ <input data-addpin="idafdn29r" placeholder="钉一个常做的"></span></div>
+      </div>
+      <div class="struct-card">
+        <div class="struct-top">
+          <div class="slot-color" style="background:#5E5CE6"></div>
+          <input data-name="idh3s59qm" value="晚上">
+          <div style="display:flex;gap:4px">
+            <button class="mini" data-move="idh3s59qm" data-dir="-1" title="上移">↑</button>
+            <button class="mini" data-move="idh3s59qm" data-dir="1" title="下移">↓</button>
+            <button class="mini del" data-delslot="idh3s59qm" title="删除">✕</button>
+          </div>
+        </div>
+        <div class="struct-win">钟点窗口<input data-win="idh3s59qm" value="18:00-24:00" placeholder="可选，如 06:00-12:00"></div>
+        <div class="pins"><div class="lbl">这个时段常做的（固定钉 · 填=选直接出现）</div><span class="add-btn" data-addroot="idh3s59qm">＋ <input data-addpin="idh3s59qm" placeholder="钉一个常做的"></span></div>
+      </div>
+      <div class="struct-card">
+        <div class="struct-top">
+          <div class="slot-color" style="background:#FF9F0A"></div>
+          <input data-name="idjnb3fpk" value="午夜">
+          <div style="display:flex;gap:4px">
+            <button class="mini" data-move="idjnb3fpk" data-dir="-1" title="上移">↑</button>
+            <button class="mini" data-move="idjnb3fpk" data-dir="1" title="下移">↓</button>
+            <button class="mini del" data-delslot="idjnb3fpk" title="删除">✕</button>
+          </div>
+        </div>
+        <div class="struct-win">钟点窗口<input data-win="idjnb3fpk" value="24:00-06:00" placeholder="可选，如 06:00-12:00"></div>
+        <div class="pins"><div class="lbl">这个时段常做的（固定钉 · 填=选直接出现）</div><span class="add-btn" data-addroot="idjnb3fpk">＋ <input data-addpin="idjnb3fpk" placeholder="钉一个常做的"></span></div>
+      </div></div>
     <button class="add-btn" id="addSlotWhole" style="margin-top:8px">＋ 新增一个时段</button>
   </section>
 </main>
 
-<div class="veil on" id="welcomeVeil">
+<div class="veil" id="welcomeVeil">
   <div class="welcome">
     <div class="mark">🍃</div>
     <h2>把节奏握住，别被计划绑住</h2>
@@ -216,6 +366,17 @@
       <div class="pt"><div class="ico">望</div><div><b>回望不纠错。</b>只留下"实际怎么过"，让记录复利，不制造内耗。</div></div>
     </div>
     <button class="btn-primary" id="welcomeGo">开始</button>
+    <button class="ghost" id="demoFromWelcome">🎬 先看 1 分钟演示</button>
+  </div>
+</div>
+
+<!-- ============ 演示控制条 ============ -->
+<div class="demo-bar" id="demoBar">
+  <div class="demo-caption" id="demoCap">演示结束。点底下「退出演示」，回到你自己的 PlanLoop。</div>
+  <div class="demo-ctl">
+    <button id="demoPlay" title="播放/暂停">▶</button>
+    <button id="demoNext">下一步</button>
+    <button id="demoExit" class="lite">退出演示</button>
   </div>
 </div>
 
@@ -262,15 +423,29 @@ const Core = (() => {
   function carriedActive(carried, slotId, dstrNow){
     return (carried||[]).filter(c=>c&&c.toSlot===slotId&&c.toDay<=dstrNow);
   }
+  // 灵感卡片：卡住时递一支笔。仅做轻提示，不统计、不比较、不个性化；选中才变成普通项。
+  const IDEA={
+    上午:['出门前拉伸 2 分钟','写 3 行今天想通的事','给今天定一件“做完就够”的闲事'],
+    午间:['离开屏幕吃顿饭，不看手机','下楼晒 30 秒太阳','给家人发一句“今天吃了吗”'],
+    下午:['收拾桌面 5 分钟','把想学的东西搜出来收藏','给老朋友发条近况'],
+    晚上:['散步 15 分钟，不戴耳机','读十分钟一直想读的那一页','记下今天顺手做成了的一件事'],
+    午夜:['刷手机前关掉自动播放','把明天第一件事定下来','关灯后听十分钟播客'],
+  };
+  const IDEA_ANY=['倒杯水，站起来活动两分钟','整理一个总想整理的角落','给自己写一句：今天辛苦了'];
+  function ideaFor(slotName){
+    return (IDEA[slotName]&&IDEA[slotName].slice(0,3))||IDEA_ANY;
+  }
   function candidatesFor(slotId, dstrNow, data, max){
     max=max||12;
     const pins=(data.pins&&data.pins[slotId])||[];
     const carried=carriedActive(data.carried, slotId, dstrNow);
     const recent=recentFor(slotId, dstrNow, data.dayFills, max);
+    const slot=(data.slots||[]).find(s=>s&&s.id===slotId);
     const seen=new Set(), out=[];
     for(const p of pins){ if(p&&p.text&&!seen.has(p.text)){ seen.add(p.text); out.push({text:p.text,kind:'pin'}); } }
     for(const c of carried){ if(!seen.has(c.text)){ seen.add(c.text); out.push({text:c.text,kind:'carry'}); } }
     for(const t of recent){ if(!seen.has(t)){ seen.add(t); out.push({text:t,kind:'hot'}); } }
+    for(const it of ideaFor(slot&&slot.name)){ if(out.length<max&&!seen.has(it)){ seen.add(it); out.push({text:it,kind:'idea'}); } }
     return out.slice(0,max);
   }
 
@@ -373,7 +548,8 @@ function loadState(){
   if(!s){ s=newState(); persist(s); }
   return s;
 }
-function persist(s){ try{ localStorage.setItem(STORE_KEY,Core.exportState(s)); }catch(e){ console.error(e); } }
+let demoActive=false, savedUserState=null;
+function persist(s){ try{ localStorage.setItem(demoActive?'planloop.demo':STORE_KEY,Core.exportState(s)); }catch(e){ console.error(e); } }
 let state=loadState();
 
 function applyTheme(){
@@ -421,9 +597,9 @@ function renderDay(){
       body=`<div class="candbox">${opts}</div>`;
     }else if(open){
       const cd=Core.candidatesFor(s.id,dayStr,state);
-      let chips=cd.length?cd.map(c=>`<button class="cand ${c.kind}" data-pick="${esc(s.id)}" data-text="${esc(c.text)}"><i class="dot"></i>${esc(c.text)}</button>`).join(''):'<span style="font-size:13px;color:var(--ink-3)">还没有候选，点下方新增一个</span>';
+      let chips=cd.length?cd.map(c=>`<button class="cand ${c.kind}" data-pick="${esc(s.id)}" data-text="${esc(c.text)}">${c.kind==='idea'?'<i class="dot"></i><i class="idea-tag">灵感</i>':'<i class="dot"></i>'}${esc(c.text)}</button>`).join(''):'<span style="font-size:13px;color:var(--ink-3)">还没有候选，点下方新增一个</span>';
       chips+=`<span class="cand-new" data-newroot="${esc(s.id)}">＋ <input data-newin="${esc(s.id)}" placeholder="写一个"></span>`;
-      body=`<div class="candbox"><div class="cand-label"><span><b>${esc(s.name)}</b> 候选</span><span>钉 · 顺延 · 最近</span></div><div class="cand-row">${chips}</div></div>`;
+      body=`<div class="candbox"><div class="cand-label"><span><b>${esc(s.name)}</b> 候选</span><span>钉 · 顺延 · 最近 · 灵感</span></div><div class="cand-row">${chips}</div></div>`;
     }
     const nowTag=(hint===s.id)?'<span class="kind-now">此刻</span>':'';
     html+=`
@@ -548,10 +724,92 @@ $('importFile').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f)
 // ---------- 欢迎 ----------
 $('welcomeGo').addEventListener('click',()=>{ $('welcomeVeil').classList.remove('on'); state.settings.onboarded=true; persist(state); });
 
+// ---------- 自动演示模式 ----------
+// 人设：阿磊，独立开发者 + 健身爱好者
+function buildDemoState(){
+  const slots=Core.defaultSlots(), today=Core.todayStr();
+  const pin=t=>({id:Core.uid(),text:t});
+  const pins={};
+  pins[slots[0].id]=[pin('晨跑 5 公里'),pin('调试客户 Bug')];
+  pins[slots[1].id]=[pin('健身 · 练背'),pin('轻食午餐')];
+  pins[slots[2].id]=[pin('深度编码 · 客户项目'),pin('番茄钟 · 自由职业记账')];
+  pins[slots[3].id]=[pin('写今日日志'),pin('拉伸放松')];
+  pins[slots[4].id]=[pin('睡前阅读')];
+  const mk=specs=>{ const o={}; specs.forEach(([i,t,c])=>{ o[slots[i].id]=({text:t,completed:!!c,note:''}); }); return o; };
+  const dayFills={};
+  dayFills[Core.addDays(today,-5)]={slots:mk([[0,'晨跑 5 公里',1],[1,'健身 · 练背',1],[2,'深度编码 · 客户项目',1],[3,'写今日日志',1],[4,'睡前阅读',1]]),lookback:{mood:3,text:'高效的一天'}};
+  dayFills[Core.addDays(today,-4)]={slots:mk([[0,'晨跑 5 公里',1],[2,'深度编码 · 客户项目',0],[3,'写今日日志',1]]),lookback:{mood:2,text:'下午有点分心'}};
+  dayFills[Core.addDays(today,-3)]={slots:mk([[0,'晨跑 5 公里',1],[1,'健身 · 练背',0],[2,'深度编码 · 客户项目',1],[3,'写今日日志',1],[4,'睡前阅读',1]]),lookback:{mood:3,text:'节奏很稳'}};
+  dayFills[Core.addDays(today,-2)]={slots:mk([]),lookback:{mood:1,text:'休息日，完全没安排'}};
+  dayFills[Core.addDays(today,-1)]={slots:mk([[0,'晨跑 5 公里',1],[2,'深度编码 · 客户项目',1],[4,'睡前阅读',1]]),lookback:{mood:2,text:'普通的一天'}};
+  const carried=[{id:Core.uid(),text:'深度编码 · 客户项目',fromDate:Core.addDays(today,-1),fromSlot:slots[2].id,toSlot:slots[2].id,toDay:today}];
+  return {v:3,slots,pins,dayFills,carried,settings:{theme:state.settings.theme,onboarded:true}};
+}
+// 演示辅助：按时段名定位卡片、点选/完成/顺延
+const slotCard=name=>[...document.querySelectorAll('.slotcard')].find(c=>c.querySelector('.slot-name').textContent.startsWith(name));
+const dOpen=name=>slotCard(name).querySelector('[data-open]').click();
+const dPick=(name,text)=>{ dOpen(name); setTimeout(()=>{ const el=[...document.querySelectorAll('.cand[data-pick]')].find(b=>b.getAttribute('data-text')===text); if(el) el.click(); }, 80); };
+const dComplete=name=>slotCard(name).querySelector('[data-tog]').click();
+const dCarry=name=>{ slotCard(name).querySelector('[data-carry]').click(); setTimeout(()=>{ const t=document.querySelector('[data-carryto]'); if(t) t.click(); }, 80); };
+const dNav=v=>document.querySelector(`.nav button[data-view="${v}"]`).click();
+
+let dI=-1, dTimer=null, dPlaying=false;
+const DEMO_STEP_MS=2500;
+const demoSteps=[
+ {cap:'🎬 演示开始。阿磊是一位独立开发者，也是健身爱好者。先看「今日」——五个自然时段就是一天的节奏骨架。', run:()=>dNav('day')},
+ {cap:'点开「上午」时段：候选里已是他常钉好的项。注意——填=选，不用打字。', run:()=>dOpen('上午')},
+ {cap:'点一下就填入「晨跑 5 公里」，无需输入。', run:()=>dPick('上午','晨跑 5 公里')},
+ {cap:'跑完，把这一圈勾上，完成它。', run:()=>setTimeout(()=>dComplete('上午'),150)},
+ {cap:'「午间」同样从候选里点选他要的力量训练。', run:()=>dOpen('午间')},
+ {cap:'填入「健身 · 练背」，节奏依旧是点选。', run:()=>dPick('午间','健身 · 练背')},
+ {cap:'练完也勾上，今日完成进度跟着在涨。', run:()=>setTimeout(()=>dComplete('午间'),150)},
+ {cap:'「下午」是他今天最重的块——进入深度编码。', run:()=>dOpen('下午')},
+ {cap:'选中「深度编码 · 客户项目」。', run:()=>dPick('下午','深度编码 · 客户项目')},
+ {cap:'但现实总会让步：这款项目今天没做完，点「顺延」。', run:()=>dCarry('下午')},
+ {cap:'顺延到明天同类时段，不弹必填、不问责——它会在明天候选里自然地出现。', run:()=>{} },
+ {cap:'「晚上」回望：只记正向——连续保持、累计完成，今天实际怎么过，不必自责。', run:()=>dNav('look')},
+ {cap:'留下今天的心情 🙂 好。没有"计划 vs 实际"的纠错。', run:()=>document.querySelector('#moodRow .mood[data-m="3"]').click()},
+ {cap:'最后看「结构」：他为每个时段钉好了常做项，节奏由他定义，且只影响未来。', run:()=>dNav('struct')},
+ {cap:'演示结束。点底下「退出演示」，回到你自己的 PlanLoop。', run:()=>{} },
+];
+window.__demoSteps=demoSteps;
+function demoCaption(t){ $('demoCap').textContent=t; }
+function demoGo(n){ dI=n; const st=demoSteps[n]; demoCaption(st.cap); try{ st.run(); }catch(e){ console.warn('演示步骤异常', e); } }
+function clearDemoTimer(){ if(dTimer){ clearInterval(dTimer); dTimer=null; } }
+function demoStart(){
+  $('demoBar').classList.add('on'); dI=-1; demoGo(0); dPlaying=true; $('demoPlay').textContent='⏸';
+  clearDemoTimer();
+  dTimer=setInterval(()=>{ if(!dPlaying) return; if(dI<demoSteps.length-1) demoGo(dI+1); else { clearDemoTimer(); $('demoPlay').textContent='▶'; } }, DEMO_STEP_MS);
+}
+function startDemo(){
+  if(!demoActive){
+    savedUserState=JSON.parse(Core.exportState(state));
+    if(savedUserState.settings) savedUserState.settings.onboarded=true;
+    demoActive=true;
+    state=buildDemoState();
+    openSlotId=null; carryForSlot=null;
+    persist(state);
+  }
+  $('welcomeVeil').classList.remove('on');
+  demoStart();
+}
+function exitDemo(){
+  clearDemoTimer(); dPlaying=false; dI=-1;
+  $('demoBar').classList.remove('on');
+  if(savedUserState){ state=savedUserState; savedUserState=null; }
+  demoActive=false;
+  persist(state); render();
+}
+$('demoBtn').addEventListener('click',()=>demoActive?exitDemo():startDemo());
+$('demoFromWelcome').addEventListener('click',startDemo);
+$('demoExit').addEventListener('click',exitDemo);
+$('demoNext').addEventListener('click',()=>{ if(!demoActive) return; if(dI<demoSteps.length-1) demoGo(dI+1); clearDemoTimer(); });
+$('demoPlay').addEventListener('click',()=>{ if(!demoActive) return; dPlaying=!dPlaying; $('demoPlay').textContent=dPlaying?'⏸':'▶'; });
+
 // ---------- 装配 ----------
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>{ switchView(b.getAttribute('data-view')); render(); }));
 function render(){ renderDay(); renderLook(); renderStruct(); }
 (function init(){ applyTheme(); render(); if(!state.settings.onboarded) $('welcomeVeil').classList.add('on'); })();
 </script>
-</body>
-</html>
+
+</body></html>
