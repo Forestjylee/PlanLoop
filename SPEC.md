@@ -288,3 +288,78 @@ function exportState() -> string(JSON); importState(json) -> bool; parseImport(j
 
 - `node tests/domain.test.js` 全绿（新增 `mdToHtml`、`normMood` 用例）。
 - 手动：复盘心情 3 档可点选回显；输入 `# 标题` `- 列表` `**加粗**` 后点预览出对应层级；预览不执行任何脚本标签。
+
+---
+
+## 11 CR-015 轻量人生节奏转型（实现规格）
+
+> 上游：[PRD.md 8](PRD.md)（需求）、[CONTEXT.md](CONTEXT.md)（术语，已重写）。本规格将该转向落地到领域层与胶水层，并**拆除**与"精确钟点/快照/独立待办池/偏差复盘"相关的旧面。
+> **版本**：localStorage 键升级到 `planloop.v3`（迁移见 §11.3）。领域纯函数层新增/替换下列接口，既有测试按废弃面调整；`tests/domain.test.js` 保持全绿。
+
+### 11.1 目标数据模型（v3）
+
+```js
+state = {
+  v: 3,
+  slots: [ { id, name:"上午", win:"06:00-12:00"|null, order } ],   // 时段结构；win 仅弱提示
+  pins: { slotId: [ { id, text } ] },                              // 固定钉（结构级，低频维护）
+  dayFills: { "YYYY-MM-DD": {                                     // 只留"当天填了啥"，不冻结结构
+              slots: { slotId: { text, completed:false, note:"" } },
+              lookback: { mood:0 /*1/2/3*/, text:"" /*Markdown*/ } } },
+  carried: [ { id, text, fromDate, fromSlot, toSlot } ],           // 一键顺延项（并入候选）
+  settings: { theme, palette, ... }
+}
+```
+
+**只影响未来（唯一保留不变量）**：`slots` / `pins` 的增删改改名排序，只影响未来日的填充与候选，**永不改写**已记录 `dayFills` 的内容与完成态；历史上某时段填了什么即存于该日，与结构解耦。
+
+### 11.2 领域纯函数层（v3 接口）
+
+**候选池（新增，核心）**
+- `candidatesFor(slotId, asOf)/candidatesFor(slotId, dstr)` → 合并钉 + 最近/高频 + 顺延项，**钉优先、同文本去重**：钉恒排最前，同文本合并只占一格。
+- `recentFor(slotId, dstr, n)`：从 `dayFills` 历史统计该时段最近/高频文本（纯只读）。
+
+**填充与执行**
+- `pickFill(dayStr, slotId, text)` → 写该日该时段的倾向内容（首次写该日即建立 `dayFills[dayStr]`）。
+- `completeSlot(dayStr, slotId)` → 完成/未完成二态切换（原三态收敛为二态）。
+
+**顺延（取代"带到明天/待办池"）**
+- `carry(dayStr, slotId, toDay, toSlotId)` → 把该日该时段未完成项转为 `carried` 条目，目标指向未来某天某时段（默认同类时段，可换）；写入后不出现于独立页签，仅作候选。
+
+**回望（取代"复盘"）**
+- `lookbackOf(dayStr)` → 正向沉淀聚合：完成态、连续天数、累计完成、周完成率/心情带（复用 CR-014 沉淀区逻辑，去掉"计划 vs 实际 偏差"）。
+
+**废弃的旧接口**：`blocksFromTemplates`、`getMaterialized`、`ensureToday`、`projectBlocks`、`writeBlock(时段版)`、`addToBacklog`、`assignFromBacklog`、`tplApplies` 等钟点/快照/待办接口 → 按 §11.5 拆除；`clampStart / rangeOverlap`（拖拽）一并废弃。
+
+### 11.3 数据迁移（v2 → v3）
+
+- 读旧 `planloop.v2`：`templates`（块）按自然时段名(上午/午间/下午/晚上/午夜)映射到 `slots`；无法识别的钟点块并入"其他"或丢弃（需在导入时确认）。
+- 旧 `days[i].blocks[].taskName` → 写入 `dayFills[d].slots[映射slotId].text`；`status` 完成态归并为二态(完成→completed，部分/跳过→未完成)。
+- 旧 `backlog` → 生成 `carried` 条目（来源保留）；`settings` 整体沿用。
+- 版本不匹配/迁移失败 → 拒绝导入并提示，不污染现有数据。
+
+### 11.4 胶水层改动
+
+- **今日视图**：由"24h 钟点时间轴"改为**自然时段表单列**（`#slots` 逐行：时段名 + 今日倾向/完成钮）；点击时段展开该时段候选池(`#candRow`)，点选即 `pickFill`；完成钮触发 `completeSlot`。
+- **回望页**：保留 CR-014 沉淀区（周柱状/心情带/里程碑），改为 `lookbackOf` 聚合；去掉"计划 vs 实际"对比区与"放进待办池"勾选。
+- **顺延交互**：时段未完成行点"顺延"，弹出轻量目标选择(默认同类时段)，调 `carry`；**不设独立待办池页签**（导航收敛为 今日/回望/结构）。
+- **结构页**：`templates` 改为 `slots` 管理（改名/增删/排序/可选钟点窗口弱提示）；预设模板改为自然时段形态。
+- **周视图**：按时段完成态渲染 7×N 网格，并入回望。
+- **新手引导/理念卡**：文案按 PRD 8.4.6 调整。
+
+### 11.5 拆除清单（不留死代码）
+
+- 24h 时间轴/整点刻度/当前时间红线/分区 band（CR-003/008）。
+- 卡片绝对定位、拖拽改时刻/吸附/重叠避让/`clampStart`/`rangeOverlap`（CR-003/005/006）。
+- `backlog` 数据结构 + 待办池页签 + `onboarded` 导览中转待办池步骤改文案。
+
+### 11.6 任务清单（TDD）
+
+1. **时段结构 + 只影响未来**：`slots` 增删改排序；改 `slots` 不改写既有 `dayFills`（测不变量）。
+2. **候选池聚合**：「填=选」核心——`candidatesFor` 合并钉+最近高频+顺延、钉优先、同文本去重、可点选。
+3. **填充 + 二态执行**：`pickFill` / `completeSlot`（含完成/撤销）。
+4. **一键顺延**：`carry` 生成条目、指向前后时段、仅作候选。
+5. **回望聚合**：`lookbackOf` 正向沉淀（完成/连续/累计/周），无偏差对比。
+6. **迁移 + 导入导出**：v2→v3 迁移、导出/导入 v3、坏 JSON 拒导入。
+7. **胶水层 + 拆除**：今日时段表/候选池/回望/结构/周视图改造；按 §11.5 拆除旧面；导航收敛。
+8. **自检**：`node tests/domain.test.js` 全绿；文案/页面无废弃术语残留。
